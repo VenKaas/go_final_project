@@ -3,12 +3,12 @@ module github.com/VenKaas/go_final_project
 go 1.21.5
 
 require (
-	github.com/go-chi/chi v1.5.5
+	github.com/go-chi/chi v1.5.5 // fixme!
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/stretchr/testify v1.9.0
-	modernc.org/sqlite v1.29.8
+	modernc.org/sqlite v1.30.2
 )
 
 require (
@@ -23,7 +23,7 @@ require (
 	golang.org/x/sys v0.19.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
-	modernc.org/libc v1.49.3 // indirect
+	modernc.org/libc v1.52.1 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/strutil v1.2.0 // indirect

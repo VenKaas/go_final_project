@@ -11,7 +11,7 @@ import (
 func main() {
 	env.SetFlagParams()
 
-	err := db.DbExistance()
+	err := db.Existance()
 	if err != nil {
 		log.Println("Ошибка при подключении к базе:", err)
 		return

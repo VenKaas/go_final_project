@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 // SetFlagParams - настраивает параметры запуска приложения
@@ -29,8 +30,15 @@ func DbName() string {
 	return dbFile
 }
 
+var rightPassword string
+
+var readPassOnce = sync.OnceFunc(func() {
+	rightPassword = os.Getenv("TODO_PASSWORD")
+})
+
 func SetPass() string {
-	return os.Getenv("TODO_PASSWORD")
+	readPassOnce()
+	return rightPassword
 }
 
 func SetPort() string {

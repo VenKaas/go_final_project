@@ -5,14 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/VenKaas/go_final_project/dformat"
 	"github.com/VenKaas/go_final_project/nextdate"
 )
 
 func GetNextDate(rw http.ResponseWriter, rq *http.Request) {
 	// парсим форму
 	nowInString := rq.FormValue("now")
-	now, err := time.Parse(dformat.DFormat, nowInString)
+	now, err := time.Parse(nextdate.DFormat, nowInString)
 	if err != nil {
 		log.Println("ошибка парсинга формата заданной даты:", err)
 	}
@@ -26,5 +25,8 @@ func GetNextDate(rw http.ResponseWriter, rq *http.Request) {
 	}
 
 	rw.WriteHeader(http.StatusOK)
-	rw.Write([]byte(st))
+	_, err = rw.Write([]byte(st))
+	if err != nil {
+		log.Println("ошибка записи ответа:", err)
+	}
 }

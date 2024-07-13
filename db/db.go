@@ -11,7 +11,8 @@ import (
 	"github.com/VenKaas/go_final_project/env"
 )
 
-func DbExistance() error {
+// Existance - TODO: описание
+func Existance() error {
 
 	dbFile := env.DbName()
 

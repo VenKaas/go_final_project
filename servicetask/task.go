@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/VenKaas/go_final_project/dformat"
 	"github.com/VenKaas/go_final_project/nextdate"
 )
 
@@ -53,10 +52,8 @@ func (ts TaskStore) GetOneTask(id int) (Task, TaskResp, error) {
 }
 
 // получаем все задачи из базы
-func (ts TaskStore) GetAll() (map[string][]Task, TaskResp, error) {
-	var tasks = map[string][]Task{
-		"tasks": {},
-	}
+func (ts TaskStore) GetAll() ([]Task, TaskResp, error) {
+	var tasks []Task
 	var tr TaskResp
 	var task Task
 	rows, err := ts.Db.Query("SELECT * FROM scheduler ORDER BY date LIMIT :limit",
@@ -73,16 +70,14 @@ func (ts TaskStore) GetAll() (map[string][]Task, TaskResp, error) {
 			tr.Err = "ошибка разбора строк после чтения из базы"
 			return tasks, tr, fmt.Errorf("ошибка разбора строк после чтения из базы: %w", err)
 		}
-		tasks["tasks"] = append(tasks["tasks"], task)
+		tasks = append(tasks, task)
 	}
 	return tasks, tr, nil
 }
 
 // получаем задачи если в поиске строка (не дата)
-func (ts TaskStore) GetSearch(searchString string) (map[string][]Task, error) {
-	var tasks = map[string][]Task{
-		"tasks": {},
-	}
+func (ts TaskStore) GetSearch(searchString string) ([]Task, error) {
+	var tasks []Task
 	var task Task
 	rows, err := ts.Db.Query("SELECT * FROM scheduler WHERE title LIKE :searchString OR comment LIKE :searchString ORDER BY date LIMIT :limit",
 		sql.Named("searchString", "%"+searchString+"%"),
@@ -98,19 +93,17 @@ func (ts TaskStore) GetSearch(searchString string) (map[string][]Task, error) {
 		if err = rows.Scan(&task.Id, &task.Date, &task.Title, &task.Comment, &task.Repeat); err != nil {
 			return tasks, fmt.Errorf("ошибка разбора строк после чтения из базы: %w", err)
 		}
-		tasks["tasks"] = append(tasks["tasks"], task)
+		tasks = append(tasks, task)
 	}
 	return tasks, nil
 }
 
 // получаем задачи если в поиске дата
-func (ts TaskStore) GetSearchDate(searchDate time.Time) (map[string][]Task, error) {
-	var tasks = map[string][]Task{
-		"tasks": {},
-	}
+func (ts TaskStore) GetSearchDate(searchDate time.Time) ([]Task, error) {
+	var tasks []Task
 	var task Task
 	rows, err := ts.Db.Query("SELECT * FROM scheduler WHERE date = :searchString LIMIT :limit",
-		sql.Named("searchString", searchDate.Format(dformat.DFormat)),
+		sql.Named("searchString", searchDate.Format(nextdate.DFormat)),
 		sql.Named("limit", limit))
 
 	if err != nil {
@@ -123,29 +116,32 @@ func (ts TaskStore) GetSearchDate(searchDate time.Time) (map[string][]Task, erro
 		if err = rows.Scan(&task.Id, &task.Date, &task.Title, &task.Comment, &task.Repeat); err != nil {
 			return tasks, fmt.Errorf("ошибка разбора строк после чтения из базы: %w", err)
 		}
-		tasks["tasks"] = append(tasks["tasks"], task)
+		tasks = append(tasks, task)
 	}
 	return tasks, nil
 }
 
-// удаляем задачу
+// Delete - удаляем задачу
 func (ts TaskStore) Delete(id int) (TaskResp, error) {
 	var tr = TaskResp{}
-	var checkedID string
 
-	err := ts.Db.QueryRow("SELECT id FROM scheduler WHERE id = :id", sql.Named("id", id)).Scan(&checkedID)
-	if err != nil {
-		tr.Err = "Ошибка, нет такого ID"
-		return tr, fmt.Errorf("ошибка чтении данных по id: %w", err)
-	}
-	_, err = ts.Db.Exec("DELETE FROM scheduler WHERE id = :id", sql.Named("id", id))
+	result, err := ts.Db.Exec("DELETE FROM scheduler WHERE id = :id", sql.Named("id", id))
 	if err != nil {
 		return TaskResp{}, fmt.Errorf("ошибка при обновлении записи БД: %w", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		tr.Err = "Ошибка проверки количества удаленных записей"
+		return tr, fmt.Errorf("ошибка проверки количества удаленных записей: %w", err)
+	}
+	if rowsAffected == 0 {
+		tr.Err = "Ошибка, нет такого ID"
+		return tr, fmt.Errorf("ошибка: запись с ID=%v не найдена", id)
 	}
 	return tr, nil
 }
 
-// отметить задачу выполненной
+// Done - отметить задачу выполненной
 func (ts TaskStore) Done(id int) (TaskResp, error) {
 	var tr TaskResp
 	var task Task
@@ -180,7 +176,7 @@ func (ts TaskStore) Done(id int) (TaskResp, error) {
 	return tr, nil
 }
 
-// обновляем задачу
+// Update - обновляем задачу
 func (ts TaskStore) Update(t Task) (TaskResp, error) {
 	var tr TaskResp
 	//обновляем поля структуры task в БД

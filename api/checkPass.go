@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
-
 	"github.com/VenKaas/go_final_project/env"
 	"github.com/golang-jwt/jwt"
+	"net/http"
 )
 
 type AuthPass struct {
@@ -36,7 +34,7 @@ func (srv Server) CheckPass(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 	//проверяем на совпадение TODO_PASSWORD и сам запрос
-	if auth.Pass == os.Getenv("TODO_PASSWORD") {
+	if auth.Pass == env.SetPass() {
 		//формируем токен
 		secret := []byte(auth.Pass)
 		jwtToken := jwt.New(jwt.SigningMethodHS256)

@@ -8,7 +8,7 @@ import (
 )
 
 func (srv Server) GetTask(rw http.ResponseWriter, rq *http.Request) {
-	var tasks = map[string][]servicetask.Task{}
+	var tasks []servicetask.Task
 	var err error
 	var tr servicetask.TaskResp
 
@@ -40,6 +40,6 @@ func (srv Server) GetTask(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	srv.Server.Response(tasks, rw)
+	srv.Server.Response(map[string]interface{}{"tasks": tasks}, rw)
 
 }

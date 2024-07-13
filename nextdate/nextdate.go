@@ -5,13 +5,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/VenKaas/go_final_project/dformat"
 )
+
+const DFormat = "20060102"
 
 func NextDate(now time.Time, date string, repeat string) (string, error) {
 
-	dateInTimeFormat, err := time.Parse(dformat.DFormat, date)
+	dateInTimeFormat, err := time.Parse(DFormat, date)
 	if err != nil {
 		return "", fmt.Errorf("ошибка парсинга формата заданной даты: %w", err)
 	}
@@ -51,11 +51,11 @@ func addDays(now time.Time, dateInTimeFormat time.Time, repeat string) (string, 
 
 	//устанавливаем новую дату для задачи
 	dateInTimeFormat = dateInTimeFormat.AddDate(0, 0, dayCount)
-	for dateInTimeFormat.Format(dformat.DFormat) <= now.Format(dformat.DFormat) {
+	for dateInTimeFormat.Format(DFormat) <= now.Format(DFormat) {
 		dateInTimeFormat = dateInTimeFormat.AddDate(0, 0, dayCount)
 	}
 
-	return dateInTimeFormat.Format(dformat.DFormat), nil
+	return dateInTimeFormat.Format(DFormat), nil
 }
 
 // функция поиска числа для переноса задачи, если надо переносить на недели
@@ -79,7 +79,7 @@ func addWeek(now time.Time, dateInTimeFormat time.Time, repeat string) (string, 
 	}
 
 	//если дата меньше текущей, то устанавливаем текущую
-	if dateInTimeFormat.Format(dformat.DFormat) < now.Format(dformat.DFormat) {
+	if dateInTimeFormat.Format(DFormat) < now.Format(DFormat) {
 		dateInTimeFormat = now
 	}
 
@@ -89,11 +89,11 @@ func addWeek(now time.Time, dateInTimeFormat time.Time, repeat string) (string, 
 		weekDay := weekDayNumber(dateInTimeFormat)
 		_, ok := validDays[weekDay]
 		if ok {
-			validDays[weekDay] = dateInTimeFormat.Format(dformat.DFormat)
+			validDays[weekDay] = dateInTimeFormat.Format(DFormat)
 		}
 	}
 	//ищем ближайшую дату
-	targetDay := dateInTimeFormat.Format(dformat.DFormat)
+	targetDay := dateInTimeFormat.Format(DFormat)
 	for _, validDay := range validDays {
 		if validDay < targetDay {
 			targetDay = validDay
@@ -115,10 +115,10 @@ func weekDayNumber(day time.Time) int {
 func addYear(now time.Time, dateInTimeFormat time.Time) (string, error) {
 	//устанавливаем новую дату для задачи
 	dateInTimeFormat = dateInTimeFormat.AddDate(1, 0, 0)
-	for dateInTimeFormat.Format(dformat.DFormat) <= now.Format(dformat.DFormat) {
+	for dateInTimeFormat.Format(DFormat) <= now.Format(DFormat) {
 		dateInTimeFormat = dateInTimeFormat.AddDate(1, 0, 0)
 	}
-	return dateInTimeFormat.Format(dformat.DFormat), nil
+	return dateInTimeFormat.Format(DFormat), nil
 }
 
 // функция поиска числа для переноса задачи, когда надо переносить на числа месяца
@@ -152,7 +152,7 @@ func addMonth(now time.Time, dateInTimeFormat time.Time, repeat string) (string,
 	}
 
 	//проверяем, что считаем от даты которая дальше чем сегодня, иначе считаем с сегодня
-	if dateInTimeFormat.Format(dformat.DFormat) < now.Format(dformat.DFormat) {
+	if dateInTimeFormat.Format(DFormat) < now.Format(DFormat) {
 		dateInTimeFormat = now
 	}
 
@@ -214,11 +214,11 @@ func setDateFromCurrentMonth(validDays map[int]string, dateInTimeFormat time.Tim
 	}
 
 	if _, ok := validDays[-1]; ok {
-		validDays[-1] = dateInTimeFormat.AddDate(0, 1, -dateInTimeFormat.Day()).Format(dformat.DFormat)
+		validDays[-1] = dateInTimeFormat.AddDate(0, 1, -dateInTimeFormat.Day()).Format(DFormat)
 	}
 
 	if _, ok := validDays[-2]; ok {
-		validDays[-2] = dateInTimeFormat.AddDate(0, 1, -dateInTimeFormat.Day()-1).Format(dformat.DFormat)
+		validDays[-2] = dateInTimeFormat.AddDate(0, 1, -dateInTimeFormat.Day()-1).Format(DFormat)
 	}
 
 	//возвращаем ближайшую дату
@@ -260,7 +260,7 @@ func setDateForSpecificMonths(validDays map[int]string, validMonths map[int]stri
 
 // поиск минимально значения в мапе с подходящими датами
 func minDate(validDays map[int]string) string {
-	targetDay := time.Now().AddDate(2, 0, 0).Format(dformat.DFormat)
+	targetDay := time.Now().AddDate(2, 0, 0).Format(DFormat)
 	for _, validDay := range validDays {
 		if (validDay < targetDay) && (validDay != "") {
 			targetDay = validDay
